@@ -8,20 +8,24 @@ s = Gem::Specification.new
 s.name          = "recordify"
 s.version       = Recordify::VERSION
 s.authors       = ["Ruben Jenster"]
-s.email         = ["r.jenster@drachenfels.de"]
-s.description   = %q{TODO: Write a gem description}
-s.summary       = %q{TODO: Write a gem summary}
-s.homepage      = "http://github.com/Drachenfels-GmbH/Thor::Sandbox::Gem::Base"
+s.email         = ["rjenster@gmail.com"]
+s.description   = %q{Record your spotify playlists}
+s.summary       = %q{Record your spotify playlists}
+s.homepage      = "http://github.com/r10r/recordify"
 
 s.files         = `git ls-files`.split($/)
 s.executables   = s.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
 s.test_files    = s.files.grep(%r{^(test|spec|features)/})
 s.require_paths = ["lib"]
-s.add_dependency "thor"
-s.add_development_dependency "rake"
 
+s.add_development_dependency "rake"
 s.add_development_dependency "simplecov"
 s.add_development_dependency "simplecov-rcov"
 
+s.add_dependency 'spotify'
+s.add_dependency 'pry'
+s.add_dependency 'taglib-ruby'  # brew install taglib
+s.add_dependency 'plaything'
+s.add_dependency 'mkfifo'
 s
 
