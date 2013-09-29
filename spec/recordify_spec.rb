@@ -7,7 +7,7 @@ describe 'playlist generation' do
   let(:do_you_have_soul) { 'spotify:track:2UdqFFp5n4txoqi5mGqrZU'}
 
   before(:all) do
-    appkey = File.join(File.dirname(__FILE__), 'spotify_appkey.key')
+    appkey = ENV['SPOTIFY_APPKEY']
     @sink = Plaything.new
     @recordify = Recordify::Client.new(appkey, @sink)
     @recordify.connect(ENV['SPOTIFY_USERNAME'], ENV['SPOTIFY_PASSWORD'])

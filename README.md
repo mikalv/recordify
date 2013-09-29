@@ -1,14 +1,13 @@
-**NOTE: This is a work in progress**
+**NOTE: This is work in progress.**
 
 About
 ==========================
-Library to sync your spotify library to disk.
+Sync your spotify library to disk.
 
 Usage
 ==========================
 
-
-Write stream to FIFO
+Write PCM stream of a track to FIFO
 --------------------------
 * install sox `brew install sox`
 
@@ -16,9 +15,9 @@ start streaming to **spotify.fifo**
 
 ```bash
 export SPOTIFY_APPKEY=<path to your spotify appkey>
-export SPOTIFY_PASSWORD=< your spotify password>
+export SPOTIFY_PASSWORD=<your spotify password>
 export SPOTIFY_USERNAME=<your spotify username>
-ruby bin/play.rb spotify:track:2IORQnCMu5KaiqBmJJPwV4
+./bin/play.rb spotify:track:2IORQnCMu5KaiqBmJJPwV4
 ```
 
 playback from fifo with **sox**
@@ -29,9 +28,10 @@ play -r 44100 -c 2 -t s16 spotify.fifo
 
 (Planed) Features
 ==========================
-* sync single tracks
+* sync tracks
+* sync playlists
+* sync whole library
 * convert/compress synced files (MP3 ...)
-* sync whole playlists / whole library
 * sync without interrupting active sessions
 
 Resources
