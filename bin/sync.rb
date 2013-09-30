@@ -3,7 +3,7 @@ require 'fileutils'
 require_relative '../lib/recordify'
 require 'taglib'
 
-HOME="#{ENV['HOME']}/.recordify"
+HOME=ENV['SPOTIFY_HOME']
 PCM_TMP_FILE="#{HOME}/tmp.pcm"
 LOG_FILE="#{HOME}/recordify.log"
 PLAYLIST_INDEX_NAME="tracks.txt"
