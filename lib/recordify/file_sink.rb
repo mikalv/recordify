@@ -44,9 +44,6 @@ class FileSink
   end
 
   def end_of_track
-    synchronize do
-      puts "End of track"
-    end
   end
 
   def format_changed?(new_format)

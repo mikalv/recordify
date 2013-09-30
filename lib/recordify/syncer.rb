@@ -32,7 +32,7 @@ class Recordify::Syncer
 
   def log(message)
     File.new(LOG_FILE, 'a').puts(message)
-    STDOUT.puts(message)
+    $logger.info "#{message}\n"
   end
 
   def start
@@ -81,7 +81,7 @@ class Recordify::Syncer
     if @recording.exits?
       log "Skipping existing recording #{@recording}"
     else
-      log "Sync track: #{@recording}"
+      log "Sync track: #{@recording.id}"
       # TODO move to recording class
       if File.exists?(@recording.source_path)
         log "Remove existing temp file #{@recording.source_path}"

@@ -16,5 +16,9 @@ if not os.path.isfile(OAUTH_FILEPATH):
 
 mm.login()
 # TODO handle errors (existing tracks/duplicates ...)
-print('upload started')
-mm.upload(sys.argv[1])
+# TODO handle errors (existing tracks/duplicates ...)
+track = sys.argv[1]
+uploaded, matched, not_uploaded = mm.upload(track)
+if uploaded[track]:
+    sys.exit(0)
+sys.exit(1)

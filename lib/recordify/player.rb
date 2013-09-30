@@ -10,7 +10,7 @@ class Recordify::Player
 
   def play_track(track)
     @playing = track
-    $logger.info "Start playback: #{Spotify.track_name(track)}"
+    $logger.info "Start playback: #{@client.track_uri(@playing)}"
     Spotify.try(:session_player_load, @client.session, track)
     $end_of_track = false
     Spotify.try(:session_player_play, @client.session, true)
@@ -26,7 +26,7 @@ class Recordify::Player
   def listen_to_track
     @client.poll { $end_of_track }
     #Spotify.try(:session_player_unload, @client.session)
-    $logger.info "End playback: #{Spotify.track_name(@playing)}"
+    $logger.info "End playback: #{@client.track_uri(@playing)}"
   end
 
   class FrameReader

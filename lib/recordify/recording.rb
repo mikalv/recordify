@@ -10,7 +10,7 @@ class Recordify::Recording
   end
 
   def log(message)
-    $logger.debug "track #{id}: #{message}\n"
+    $logger.info "track #{id}: #{message}\n"
   end
 
   def uri=(spotify_uri)
@@ -90,5 +90,6 @@ class Recordify::Recording
     unless $?.success?
       raise 'Upload failed'
     end
+    log 'upload finished'
   end
 end
