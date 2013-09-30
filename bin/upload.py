@@ -16,7 +16,5 @@ if not os.path.isfile(OAUTH_FILEPATH):
 
 mm.login()
 # TODO handle errors (existing tracks/duplicates ...)
+print('upload started')
 mm.upload(sys.argv[1])
-print 'finished upload'
-sys.exit(0)
-
