@@ -69,19 +69,43 @@ attr_accessor :config, :session, :playlist_container, :sink
     track
   end
 
-  def load_track_metadata(track)
-    track_attributes = {}
+  def album_metadata(album)
+    metadata = {}
+    [:name, :year].each do |attr|
+      metadata[attr] = Spotify.send("album_#{attr}".to_sym, album);
+    end
+    metadata[:artist] = artist_metadata(Spotify.send("album_artist".to_sym, album))
+
+    metadata
+  end
+
+  def artist_metadata(artist)
+    metadata = {}
+    poll { Spotify.artist_is_loaded(artist) }
+    metadata[:name] = Spotify.artist_name(artist)
+    metadata
+  end
+
+  def metadata(spotify_uri)
+    link = Spotify.link_create_from_string(spotify_uri)
+    track_metadata(Spotify.link_as_track(link))
+  end
+
+  def track_metadata(track)
+    metadata = {}
     [:num_artists, :album, :name, :duration, :disc, :index].each do |attr|
-      track_attributes[attr] = Spotify.send("track_#{attr}".to_sym, track)
+      metadata[attr] = Spotify.send("track_#{attr}".to_sym, track)
     end
-    track_attributes[:artists] = []
-    (1..track_attributes[:num_artists]+1).each do |artist_id|
-      track_attributes[:artists] << Spotify.send(:track_artist, track, artist_id)
+
+    metadata[:album] = album_metadata(metadata[:album])
+
+    metadata[:artists] = []
+    (0..metadata[:num_artists]-1).each do |artist_id|
+      artist = Spotify.track_artist(track, artist_id)
+      metadata[:artists] << artist_metadata(artist)
     end
-    [:artist, :name, :year].each do |attr|
-      puts Spotify.send("album_#{attr}".to_sym, track_attributes[:album]);
-    end
-    track_attributes
+
+    metadata
   end
 
   def link_uri(link)
@@ -92,17 +116,20 @@ attr_accessor :config, :session, :playlist_container, :sink
     end
   end
 
-  def tracks_for_playlist(playlist)
+  def track_uri(track)
+    link = Spotify.link_create_from_track(track, 0)
+    link_uri(link)
+  end
+
+  def tracks(playlist)
     num_tracks = Spotify.playlist_num_tracks(playlist)
     tracks = {}
     (0..num_tracks-1).each do |num|
       track = Spotify.playlist_track(playlist, num)
       poll { Spotify.track_is_loaded(track) }
-      link = Spotify.link_create_from_track(track, 0)
-      uri = link_uri(link)
       name = Spotify.track_name(track)
       $logger.info("Track loaded: #{name}")
-      tracks[name] = uri
+      tracks[name] = track
     end
     tracks
   end
@@ -113,20 +140,22 @@ attr_accessor :config, :session, :playlist_container, :sink
     playlist_container
   end
 
-  def load_playlist(uri)
-    $logger.info("Load playlist: #{uri}")
-    link = Spotify.link_create_from_string(uri)
+  def playlist(spotify_uri)
+    $logger.info("Load playlist: #{spotify_uri}")
+    link = Spotify.link_create_from_string(spotify_uri)
     playlist = Spotify.playlist_create(@session, link)
     poll { Spotify.playlist_is_loaded(playlist) }
     playlist
   end
 
-  def playlist(index)
+  def playlist_uri(playlist)
+    link = Spotify.link_create_from_playlist(playlist)
+    link_uri(link)
+  end
+
+  def playlist_by_index(index)
     playlist = Spotify.playlistcontainer_playlist(@playlist_container, index)
     poll { Spotify.playlist_is_loaded(playlist) }
-    link = Spotify.link_create_from_playlist(playlist)
-    uri = link_uri(link)
-    $logger.info("Playlist loaded: #{Spotify.playlist_name(playlist)} #{uri}")
     playlist
   end
 
@@ -134,7 +163,7 @@ attr_accessor :config, :session, :playlist_container, :sink
     num_playlists = Spotify.playlistcontainer_num_playlists(@playlist_container)
     playlists = {}
     (0..num_playlists-1).each do |index|
-      playlist = playlist(index)
+      playlist = playlist_by_index(index)
       name = Spotify.playlist_name(playlist)
       playlists[name] = playlist
     end
@@ -172,39 +201,23 @@ attr_accessor :config, :session, :playlist_container, :sink
           $logger.error("session (player)") { "streaming error %s" % Spotify::Error.explain(error) }
         end,
 
-        start_playback: proc do |session|
-          $logger.debug("session (player)") { "start playback" }
-          client.sink.play
-        end,
-
-        stop_playback: proc do |session|
-          $logger.debug("session (player)") { "stop playback" }
-          client.sink.stop
-        end,
-
-        get_audio_buffer_stats: proc do |session, stats|
-          stats[:samples] = client.sink.queue_size
-          stats[:stutter] = client.sink.drops
-          $logger.debug("session (player)") { "queue size [#{stats[:samples]}, #{stats[:stutter]}]" }
-        end,
-
         music_delivery: proc do |session, format, frames, num_frames|
           if num_frames == 0
             $logger.debug("session (player)") { "music delivery audio discontuity" }
-            client.sink.stop
             0
           else
             frames = Recordify::Player::FrameReader.new(format[:channels], format[:sample_type], num_frames, frames)
             consumed_frames = client.sink.stream(frames, format.to_h)
-            $logger.debug("session (player)") { "music delivery #{consumed_frames} of #{num_frames}" }
+            #$logger.debug("session (player)") { "music delivery #{consumed_frames} of #{num_frames}" }
             consumed_frames
           end
         end,
 
+        # track finished
         end_of_track: proc do |session|
           $end_of_track = true
           $logger.debug("session (player)") { "end of track" }
-          client.sink.stop
+          client.sink.end_of_track
         end
     }
   end

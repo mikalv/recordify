@@ -13,7 +13,7 @@ class FifoSink
   def initialize(fifo_path, format = {sample_rate: 44100, sample_type: :int16, channels: 2})
     @buffer = Array.new
     @playing, @stopped = false
-    @buffer_size = 44100 # overridden by format=
+    @buffer_size = 44100 * 4 # overridden by format=
 
     @output = fifo_path
     File.delete(@output) if File.exists?(@output)

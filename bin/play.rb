@@ -14,5 +14,9 @@ recordify = Recordify::Client.new(appkey, sink)
 player = Recordify::Player.new(recordify)
 
 recordify.connect(username, password)
-puts "Recording to fifo #{fifo}"
+puts "Writing PCM stream to fifo #{fifo}"
+fork do
+  exec "play -r 44100 -c 2 -t s16 #{fifo}"
+end
 player.play(track_uri)
+player.wait
