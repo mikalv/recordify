@@ -49,7 +49,6 @@ class Recordify::Recording
       self.link(playlist_dir)
       exit 0
     end
-    Process.detach(pid)
   end
 
   def link(folder)

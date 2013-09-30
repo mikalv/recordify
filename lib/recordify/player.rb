@@ -25,7 +25,8 @@ class Recordify::Player
 
   def listen_to_track
     @client.poll { $end_of_track }
-    #Spotify.try(:session_player_unload, @client.session)
+    Spotify.try(:session_player_play, @client.session, false)
+    Spotify.try(:session_player_unload, @client.session)
     $logger.info "End playback: #{@client.track_uri(@playing)}"
   end
 
