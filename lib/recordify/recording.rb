@@ -39,7 +39,7 @@ class Recordify::Recording
   end
 
   def process
-    log "move #{source_path} -> #{tmp_file_path}"
+    log "Move PCM tmp #{source_path} -> #{tmp_file_path}"
     FileUtils.mv(source_path, tmp_file_path)
 
     pid = fork do
@@ -53,7 +53,7 @@ class Recordify::Recording
   end
 
   def link(folder)
-    log "linking file"
+    log "Link track into #{folder}"
     FileUtils.symlink(file_path, folder)
   end
 
