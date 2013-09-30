@@ -172,6 +172,11 @@ class Recordify::Syncer
       log "Skipping existing recording #{@recording}"
     else
       log "Sync track: #{@recording}"
+      # TODO move to recording class
+      if File.exists?(@recording.source_path)
+        log "Remove existing temp file #{@recording.source_path}"
+        File.delete(@recording.source_path)
+      end
       @player.play_track(track)
       @player.listen_to_track
       @recording.process
@@ -182,7 +187,7 @@ class Recordify::Syncer
 end
 
 syncer = Recordify::Syncer.new
-syncer.recordify.debug!
+#syncer.recordify.debug!
 syncer.start
 playlist_uri = ARGV[0]
 if playlist_uri
