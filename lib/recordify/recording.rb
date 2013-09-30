@@ -10,7 +10,7 @@ class Recordify::Recording
   end
 
   def log(message)
-    $logger.info "track #{id}: #{message}\n"
+    $logger.info "track #{id}: #{message}"
   end
 
   def uri=(spotify_uri)

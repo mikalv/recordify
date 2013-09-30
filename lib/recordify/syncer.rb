@@ -32,7 +32,7 @@ class Recordify::Syncer
 
   def log(message)
     File.new(LOG_FILE, 'a').puts(message)
-    $logger.info "#{message}\n"
+    $logger.info "#{message}"
   end
 
   def start
