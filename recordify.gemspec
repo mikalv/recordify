@@ -25,7 +25,6 @@ s.add_development_dependency "simplecov-rcov"
 s.add_dependency 'spotify'
 s.add_dependency 'pry'
 s.add_dependency 'taglib-ruby'  # brew install taglib
-s.add_dependency 'plaything'
 s.add_dependency 'mkfifo'
 s
 

@@ -8,6 +8,7 @@ Requirements
 ==========================
 * `sox` for PCM -> MP3 conversion
 * [gmusicapi](http://unofficial-google-music-api.readthedocs.org/) for google music upload/sync
+* [gmusicapi arch linux](https://aur.archlinux.org/packages/python2-gmusicapi)
 
 Usage
 ==========================

@@ -1,5 +1,4 @@
 require 'spotify'
-require 'plaything'
 require 'logger'
 require_relative 'fifo_sink'
 

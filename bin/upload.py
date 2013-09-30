@@ -1,5 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 # see http://unofficial-google-music-api.readthedocs.org/en/latest/usage.html#usage
+# arch linux 'pacman -S python2-pip && pip2 install gmusicapi'
 
 from gmusicapi import Musicmanager
 from gmusicapi.compat import my_appdirs
