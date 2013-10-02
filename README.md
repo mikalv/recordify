@@ -44,6 +44,34 @@ playback from fifo with **sox**
 play -r 44100 -c 2 -t s16 spotify.fifo
 ```
 
+TODO
+==========================
+* validate recordings (compare expected length from spotify metadata with actual audio length)
+* upload only script. Use environment variable to set oauth token
+
+Timeout / Locked Playback
+--------------------------
+* check if any error conditions can be used to abort the file sink
+* implement retry mechanism
+* using Timeout with the track length ?
+* ~~watch if record file is not growing ? (trap signal and relaunch sync script)~~
+
+
+Check Recording Length
+-------------------------
+* `sox file.mp3 -n stat`
+* `mp3info -p "%S" /path/to/file`
+* `soxi -s /home/ruben/.recordify/tracks/137UoRpUNnIKwmqNDreh49.mp3`
+
+```
+[root@x40 recordify]# soxi -s /home/ruben/.recordify/tracks/137UoRpUNnIKwmqNDreh49.mp3
+14108693
+[root@x40 recordify]# soxi -d /home/ruben/.recordify/tracks/137UoRpUNnIKwmqNDreh49.mp3
+00:05:19.93
+[root@x40 recordify]# soxi -D /home/ruben/.recordify/tracks/137UoRpUNnIKwmqNDreh49.mp3
+319.925011
+```
+
 (Planed) Features
 ==========================
 
