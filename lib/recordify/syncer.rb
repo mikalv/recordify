@@ -5,7 +5,6 @@ require_relative 'recording'
 SPOTIFY_HOME=ENV['SPOTIFY_HOME']
 PCM_TMP_FILE="#{SPOTIFY_HOME}/tmp.pcm"
 LOG_FILE="#{SPOTIFY_HOME}/recordify.log"
-PLAYLIST_INDEX_NAME="tracks.txt"
 
 TRACKS="#{SPOTIFY_HOME}/tracks"
 PLAYLISTS="#{SPOTIFY_HOME}/playlists"
@@ -24,7 +23,7 @@ class Recordify::Syncer
 
   def setup
     [TRACKS, PLAYLISTS].each do |folder|
-      if ! Dir.exists?(folder)
+      if !Dir.exists?(folder)
         FileUtils.mkdir_p(folder)
       end
     end
@@ -51,8 +50,11 @@ class Recordify::Syncer
     log "Syncing playlist[#{playlist_id}]: #{playlist_name}"
     tracks = @recordify.tracks(playlist)
     tracks.values.each do |track|
-      @recording = sync_track(track, playlist, playlist_id, playlist_dir)
-      File.new(File.join(playlist_dir, PLAYLIST_INDEX_NAME), 'a').puts(@recording.id)
+      begin
+        @recording = sync_track(track, playlist, playlist_id, playlist_dir)
+      rescue Spotify::Error
+        log "Spotify ERROR: Skipping track #{@recordify.track_uri(track)}"
+      end
     end
   end
 
