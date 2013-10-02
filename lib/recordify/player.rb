@@ -2,32 +2,33 @@ require 'json'
 
 class Recordify::Player
 
-  attr_accessor :playing
+  attr_accessor :recording
 
   def initialize(client)
     @client = client
   end
 
-  def play_track(track)
-    @playing = track
-    $logger.info "Start playback: #{@client.track_uri(@playing)}"
-    Spotify.try(:session_player_load, @client.session, track)
+  def play(recording)
+    @recording = recording
+    $logger.info "Start playback: #{@recording}"
+    Spotify.try(:session_player_load, @client.session, recording.track)
     $end_of_track = false
     Spotify.try(:session_player_play, @client.session, true)
-    @playing
+    @recording
   end
 
-  def play(uri)
+  def play_uri(uri)
     link = Spotify.link_create_from_string(uri)
     track = Spotify.link_as_track(link)
-    play_track(track)
+    # TODO create a recording
+    play(track)
   end
 
-  def listen_to_track
+  def listen
     @client.poll { $end_of_track }
     Spotify.try(:session_player_play, @client.session, false)
     Spotify.try(:session_player_unload, @client.session)
-    $logger.info "End playback: #{@client.track_uri(@playing)}"
+    $logger.info "End playback: #{@recording}"
   end
 
   class FrameReader

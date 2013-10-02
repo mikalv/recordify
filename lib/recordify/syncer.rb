@@ -35,6 +35,7 @@ class Recordify::Syncer
   end
 
   def start
+    log "Master started #{$$}"
     setup
     @recordify.connect(@username, @password)
     @recordify.sink = FileSink.new("#{PCM_TMP_FILE}")
@@ -47,13 +48,13 @@ class Recordify::Syncer
     playlist_dir = File.join(PLAYLISTS, playlist_id)
     playlist_name = Spotify.playlist_name(playlist)
     FileUtils.mkdir_p(playlist_dir)
-    log "Syncing playlist[#{playlist_id}]: #{playlist_name}"
+    log "Start playlist sync [#{playlist_name}] #{playlist_id}"
     tracks = @recordify.tracks(playlist)
     tracks.values.each do |track|
       begin
         @recording = sync_track(track, playlist, playlist_id, playlist_dir)
       rescue Spotify::Error
-        log "Spotify ERROR: Skipping track #{@recordify.track_uri(track)}"
+        log "Spotify ERROR: Skipping #{@recordify.track_uri(track)}"
       end
     end
   end
@@ -81,16 +82,16 @@ class Recordify::Syncer
     @recording.playlist_id = playlist_id
 
     if @recording.exits?
-      log "Skipping existing recording #{@recording}"
+      log "Skip existing: #{@recording}"
     else
-      log "Sync track: #{@recording.id}"
+      log "Start sync: #{@recording}"
       # TODO move to recording class
       if File.exists?(@recording.source_path)
-        log "Remove existing temp file #{@recording.source_path}"
+        log "Cleanup - remove existing PCM source #{@recording.source_path}"
         File.delete(@recording.source_path)
       end
-      @player.play_track(track)
-      @player.listen_to_track
+      @player.play(@recording)
+      @player.listen
       @recording.process
     end
 

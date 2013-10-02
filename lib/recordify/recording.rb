@@ -10,7 +10,7 @@ class Recordify::Recording
   end
 
   def log(message)
-    $logger.info "track #{id}: #{message}"
+    $logger.info "#{message}: #{self.to_s}"
   end
 
   def uri=(spotify_uri)
@@ -35,40 +35,46 @@ class Recordify::Recording
   end
 
   def to_s
-    "#{metadata[:album][:name]} - #{metadata[:name]}:#{file_path}"
+    "[#{metadata[:name]}] #{@id}"
   end
 
   def process
-    log "Move PCM tmp #{source_path} -> #{tmp_file_path}"
+    log "Moving PCM source -> #{tmp_file_path}"
     FileUtils.mv(source_path, tmp_file_path)
 
     pid = fork do
+      log "Worker #{$$} started"
       self.convert
       self.write_metadata
       self.upload
       self.link(playlist_dir)
       exit 0
     end
+
+    if ! pid.nil?
+      log "Master #{$$} detach worker #{pid}"
+      Process.detach(pid)
+    end
   end
 
   def link(folder)
-    log "Link track into #{folder}"
+    log "Link #{file_path} -> #{folder}"
     FileUtils.symlink(file_path, folder)
   end
 
   def convert
-    log 'start conversion'
+    log "Start conversion -> #{file_path}"
     puts `sox -r 44100 -c 2 -t s16 #{tmp_file_path} -C 256 #{file_path}`
     unless $?.success?
       raise 'Audio conversion failed'
     end
     File.delete(tmp_file_path)
     @converted = true
-    log 'end conversion'
+    log "End conversion -> #{file_path}"
   end
 
   def write_metadata
-    log 'writing metadata'
+    log 'Write metadata'
     TagLib::FileRef.open(file_path) do |fileref|
       unless fileref.null?
         tag = fileref.tag
@@ -87,7 +93,7 @@ class Recordify::Recording
     log 'uploading'
     puts `#{File.dirname(__FILE__)}/../../bin/upload.py #{file_path}`
     unless $?.success?
-      raise 'Upload failed'
+      raise "Upload failed #{self.to_s}"
     end
     log 'upload finished'
   end
