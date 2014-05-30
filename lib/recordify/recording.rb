@@ -46,8 +46,8 @@ class Recordify::Recording
       log "Worker #{$$} started"
       self.convert
       self.write_metadata
-      self.upload
-      self.link(playlist_dir)
+      #self.upload
+      self.add_to_playlist(playlist_dir)
       exit 0
     end
 
@@ -57,9 +57,13 @@ class Recordify::Recording
     end
   end
 
-  def link(folder)
-    log "Link #{file_path} -> #{folder}"
-    FileUtils.symlink(file_path, folder)
+  def add_to_playlist(playlist_folder)
+    playlist_name = Spotify.playlist_name(playlist)
+    playlist_path = File.join(SPOTIFY_HOME, "playlists", "#{playlist_name}.m3u")
+    log "Add to playlist #{playlist_path}"
+    File.open(playlist_path, 'a+') do |f|
+      f.puts "#{File.basename(file_path)}"
+    end
   end
 
   def convert

@@ -47,7 +47,17 @@ class Recordify::Syncer
     playlist_id = playlist_uri.split(':')[4]
     playlist_dir = File.join(PLAYLISTS, playlist_id)
     playlist_name = Spotify.playlist_name(playlist)
-    FileUtils.mkdir_p(playlist_dir)
+
+    # append playlist to list of playlists
+    playlist_path = File.join(SPOTIFY_HOME, "playlists", "#{playlist_name}.m3u")
+
+    if ! File.exists?(playlist_path)
+      FileUtils.touch(playlist_path)
+      File.open(File.join(SPOTIFY_HOME, 'playlists.txt',), 'a+') do |f|
+        f.puts "#{playlist_id} #{playlist_name}"
+      end
+    end
+
     log "Start playlist sync [#{playlist_name}] #{playlist_id}"
     tracks = @recordify.tracks(playlist)
     tracks.values.each do |track|
